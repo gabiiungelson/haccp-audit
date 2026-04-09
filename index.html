@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HACCP Audit — מערכת ביקורת תברואה</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Hebrew:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #f5f4f0;
+    --surface: #ffffff;
+    --surface2: #f0efe9;
+    --border: #dddbd3;
+    --text: #1a1a18;
+    --text2: #6b6a64;
+    --text3: #a09f99;
+    --blue: #1a4fa0;
+    --blue-bg: #e8eef8;
+    --green: #1a6b3a;
+    --green-bg: #e4f2ea;
+    --red: #8b1a1a;
+    --red-bg: #f5e4e4;
+    --amber: #7a4a0a;
+    --amber-bg: #faf0df;
+    --pass: #1a6b3a;
+    --pass-bg: #e4f2ea;
+    --fail: #8b1a1a;
+    --fail-bg: #f5e4e4;
+    --na: #4a4a44;
+    --na-bg: #ebebE4;
+    --radius: 10px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08);
+    --font: 'IBM Plex Sans Hebrew', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: var(--text);
+    color: #fff;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .header-logo {
+    width: 36px; height: 36px;
+    background: #fff;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .header-title { font-size: 16px; font-weight: 600; color: #fff; }
+  .header-sub { font-size: 11px; color: rgba(255,255,255,0.55); margin-top: 1px; }
+
+  /* ── Setup Banner ── */
+  #setup-banner {
+    background: var(--amber-bg);
+    border-bottom: 1px solid #e8c97a;
+    padding: 12px 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  #setup-banner.connected { background: var(--green-bg); border-color: #7abf97; }
+  .setup-text { flex: 1; font-size: 13px; color: var(--text); min-width: 200px; }
+  .setup-text strong { color: var(--amber); }
+  #setup-banner.connected .setup-text strong { color: var(--green); }
+  .url-input {
+    flex: 2;
+    min-width: 220px;
+    border: 1px solid #e8c97a;
+    border-radius: 6px;
+    padding: 7px 10px;
+    font-family: var(--mono);
+    font-size: 11px;
+    background: #fff;
+    color: var(--text);
+    direction: ltr;
+    text-align: left;
+  }
+  .url-input:focus { outline: 2px solid var(--blue); border-color: transparent; }
+  .btn-connect {
+    background: var(--text);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 18px;
+    font-family: var(--font);
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .btn-connect:hover { background: #333; }
+  .offline-badge {
+    background: var(--amber-bg);
+    color: var(--amber);
+    border: 1px solid #e8c97a;
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .online-badge {
+    background: var(--green-bg);
+    color: var(--green);
+    border: 1px solid #7abf97;
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  /* ── Main Layout ── */
+  .main { max-width: 860px; margin: 0 auto; padding: 1.25rem 1rem; }
+
+  /* ── Auditor Bar ── */
+  .auditor-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1rem;
+  }
+  .auditor-bar label { font-size: 12px; color: var(--text2); white-space: nowrap; }
+  .auditor-input {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-family: var(--font);
+    font-size: 13px;
+    background: var(--surface2);
+    color: var(--text);
+    width: 160px;
+  }
+  .auditor-input:focus { outline: 2px solid var(--blue); border-color: transparent; }
+  .date-badge {
+    margin-right: auto;
+    font-size: 12px;
+    color: var(--text2);
+    font-family: var(--mono);
+  }
+
+  /* ── Zone Grid ── */
+  .section-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+  .zones-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 8px;
+    margin-bottom: 1.25rem;
+  }
+  .zone-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 12px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-align: right;
+    position: relative;
+  }
+  .zone-card:hover { border-color: #aaa; transform: translateY(-1px); box-shadow: var(--shadow); }
+  .zone-card.active {
+    border-color: var(--blue);
+    background: var(--blue-bg);
+    box-shadow: 0 0 0 1px var(--blue);
+  }
+  .zone-card.has-score::after {
+    content: attr(data-score);
+    position: absolute;
+    top: 8px;
+    left: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: var(--mono);
+    color: var(--green);
+    background: var(--green-bg);
+    padding: 2px 7px;
+    border-radius: 20px;
+  }
+  .zone-card.has-score.score-low::after { color: var(--red); background: var(--red-bg); }
+  .zone-card.has-score.score-mid::after { color: var(--amber); background: var(--amber-bg); }
+  .zone-icon { font-size: 22px; margin-bottom: 6px; }
+  .zone-name { font-size: 13px; font-weight: 500; color: var(--text); }
+  .zone-meta { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  /* ── Checklist ── */
+  .checklist-wrap { display: none; }
+  .checklist-wrap.visible { display: block; }
+  .cl-header {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .cl-title { font-size: 15px; font-weight: 600; color: var(--text); }
+  .cl-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .btn-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .btn-sm {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-family: var(--font);
+    font-size: 12px;
+    cursor: pointer;
+    color: var(--text);
+    font-weight: 500;
+    transition: all 0.12s;
+  }
+  .btn-sm:hover { background: var(--border); }
+  .btn-sm.primary { background: var(--text); color: #fff; border-color: var(--text); }
+  .btn-sm.primary:hover { background: #333; }
+  .btn-sm.save { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .btn-sm.save:hover { background: #1340880; }
+  .btn-sm:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  /* ── Score Bar ── */
+  .score-strip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .score-num { text-align: center; min-width: 44px; }
+  .score-val { font-size: 22px; font-weight: 600; font-family: var(--mono); line-height: 1; }
+  .score-lbl { font-size: 10px; color: var(--text3); margin-top: 2px; }
+  .sv-pass { color: var(--pass); }
+  .sv-fail { color: var(--fail); }
+  .sv-na { color: var(--na); }
+  .prog-wrap { flex: 1; min-width: 100px; }
+  .prog-bg { background: var(--border); border-radius: 4px; height: 8px; overflow: hidden; }
+  .prog-fill { height: 100%; border-radius: 4px; background: var(--green); transition: width 0.4s ease; }
+  .prog-pct { font-size: 20px; font-weight: 700; font-family: var(--mono); color: var(--text); }
+
+  /* ── Questions ── */
+  .questions-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 1rem; }
+  .q-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    transition: border-color 0.15s;
+  }
+  .q-row.answered-pass { border-right: 3px solid var(--pass); }
+  .q-row.answered-fail { border-right: 3px solid var(--fail); background: #fdf9f9; }
+  .q-row.answered-na { border-right: 3px solid #ccc; }
+  .q-idx { font-size: 10px; color: var(--text3); font-family: var(--mono); min-width: 18px; padding-top: 2px; }
+  .q-body { flex: 1; }
+  .q-text { font-size: 13px; color: var(--text); line-height: 1.55; }
+  .q-btns { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
+  .q-opt {
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-family: var(--font);
+    cursor: pointer;
+    background: var(--surface2);
+    color: var(--text2);
+    transition: all 0.12s;
+  }
+  .q-opt:hover { background: var(--border); }
+  .q-opt.sel-pass { background: var(--pass-bg); border-color: var(--pass); color: var(--pass); font-weight: 500; }
+  .q-opt.sel-fail { background: var(--fail-bg); border-color: var(--fail); color: var(--fail); font-weight: 500; }
+  .q-opt.sel-na { background: var(--na-bg); border-color: #888; color: var(--na); font-weight: 500; }
+
+  /* ── Loading / Toast ── */
+  .loading {
+    display: flex; align-items: center; gap: 10px;
+    padding: 20px; color: var(--text2); font-size: 13px;
+    justify-content: center;
+  }
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid var(--border);
+    border-top-color: var(--blue);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .toast {
+    position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+    background: var(--text); color: #fff;
+    padding: 10px 20px; border-radius: 8px;
+    font-size: 13px; z-index: 999;
+    opacity: 0; transition: opacity 0.3s;
+    pointer-events: none; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; }
+  .toast.success { background: var(--green); }
+  .toast.error { background: var(--red); }
+
+  /* ── History Panel ── */
+  .history-section { margin-top: 1.5rem; }
+  .history-table {
+    width: 100%; border-collapse: collapse;
+    font-size: 12px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .history-table th {
+    background: var(--surface2); border-bottom: 1px solid var(--border);
+    padding: 8px 12px; text-align: right; font-weight: 500; color: var(--text2);
+  }
+  .history-table td { padding: 8px 12px; border-bottom: 1px solid var(--bg); color: var(--text); }
+  .history-table tr:last-child td { border-bottom: none; }
+  .score-pill {
+    display: inline-block; padding: 2px 8px; border-radius: 20px;
+    font-weight: 600; font-family: var(--mono); font-size: 11px;
+  }
+  .empty-state {
+    text-align: center; padding: 2rem; color: var(--text3); font-size: 13px;
+  }
+
+  @media (max-width: 600px) {
+    .zones-grid { grid-template-columns: repeat(2, 1fr); }
+    .header { flex-wrap: wrap; }
+    .score-strip { gap: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-left">
+    <div class="header-logo">🛡️</div>
+    <div>
+      <div class="header-title">HACCP Audit</div>
+      <div class="header-sub">מערכת ביקורת תברואה מחוברת</div>
+    </div>
+  </div>
+  <div id="conn-badge" class="offline-badge">⚠ לא מחובר לשיט</div>
+</div>
+
+<!-- Setup Banner -->
+<div id="setup-banner">
+  <div class="setup-text">
+    <strong>הגדרת חיבור ל-Google Sheets</strong><br>
+    <span style="font-size:11px">הדבק את ה-Apps Script Web App URL שלך</span>
+  </div>
+  <input class="url-input" id="sheets-url" type="text" dir="ltr"
+    placeholder="https://script.google.com/macros/s/AKfycbwrYR0yYrwBc7FVu4eO3_FH28zuCt0Wdl4-nJYwfQueQ1vGga0VCVrRLCzQwWaB5Ux4/exec"
+    value="">
+  <button class="btn-connect" onclick="connectSheets()">התחבר</button>
+</div>
+
+<div class="main">
+
+  <!-- Auditor -->
+  <div class="auditor-bar">
+    <label>שם הבודק:</label>
+    <input class="auditor-input" id="auditor-name" type="text" placeholder="הכנס שם..." value="">
+    <div class="date-badge" id="date-display"></div>
+  </div>
+
+  <!-- Zones -->
+  <div class="section-title">בחר אזור לביקורת</div>
+  <div class="zones-grid" id="zones-grid">
+    <div class="loading"><div class="spinner"></div> טוען מחלקות...</div>
+  </div>
+
+  <!-- Checklist -->
+  <div class="checklist-wrap" id="checklist-wrap">
+    <div class="cl-header">
+      <div>
+        <div class="cl-title" id="cl-title">—</div>
+        <div class="cl-sub" id="cl-sub">—</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-sm" onclick="refreshQuestions()">↺ שאלות חדשות</button>
+        <button class="btn-sm" onclick="exportCSV()">הורד CSV</button>
+        <button class="btn-sm save" id="btn-save" onclick="saveToSheets()" disabled>שמור לשיט ↗</button>
+      </div>
+    </div>
+
+    <div class="score-strip" id="score-strip">
+      <div class="score-num"><div class="score-val sv-pass" id="s-pass">0</div><div class="score-lbl">תקין</div></div>
+      <div class="score-num"><div class="score-val sv-fail" id="s-fail">0</div><div class="score-lbl">לא תקין</div></div>
+      <div class="score-num"><div class="score-val sv-na" id="s-na">0</div><div class="score-lbl">לא רלוונטי</div></div>
+      <div class="prog-wrap">
+        <div class="prog-bg"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+      </div>
+      <div class="score-num"><div class="prog-pct" id="prog-pct">0%</div><div class="score-lbl">ציון</div></div>
+    </div>
+
+    <div class="questions-list" id="questions-list"></div>
+  </div>
+
+  <!-- History -->
+  <div class="history-section" id="history-section" style="display:none">
+    <div class="section-title">ביקורות אחרונות — מהשיט</div>
+    <div id="history-content"></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── State ──
+let sheetsUrl = localStorage.getItem('haccp_sheets_url') || '';
+let isConnected = false;
+let currentZone = null;
+let currentQuestions = [];
+let answers = {};
+let departmentsFromSheets = null;
+let lastScores = {};
+
+// ── Default offline question bank (50 per dept) ──
+const OFFLINE_QUESTIONS = {
+  production:{name:'אזור ייצור',icon:'🏭',questions:['טמפרטורת הבישול/פסטור מגיעה ל-CCP המוגדר ונרשמת ברציפות?','ציוד הייצור מחוטא לפני תחילת כל משמרת?','הפרדה בין חומרי גלם למוצרים מוגמרים מתקיימת?','מד-חום מכויל מצוי בנקודות CCP?','עובדי הייצור עטויים בלבוש מגן תקין?','מסמכי הייצור נגישים ועדכניים בתחנת העבודה?','מוצרים בתהליך מסומנים עם תאריך ושעת ייצור?','מניעת זיהום צולב בין אלרגנים מיושמת?','שינויים בתהליך מתועדים ומאושרים?','פסולת ייצור מפונה בתדירות מספקת?','קווי הייצור בהפרדה מספקת?','קיימת נהלי Allergen Control מתועדים?','תוצאות בדיקות מיקרוביולוגיות בטווח המותר?','ציוד פגום מסומן מיידית?','אזורי הייצור נקיים ממזיקים?','המוצרים עוברים בדיקת מסנן מתכות?','זמן המתנה בין שלבי ייצור תקין?','תאורה באזור הייצור מספקת?','מדחומים עוברים כיול מתוזמן?','תוכנית PRP מיושמת ומתועדת?','קיים פרוטוקול Hold & Release?','מוצרים שנפסלו מסומנים ומאוחסנים בנפרד?','מים לתהליכי הייצור עומדים בדרישות?','הרכב חומרי הגלם מתועד?','אחריות CCP מוגדרת לעובד ספציפי?','ביצוע corrective actions לאחר חריגה מ-CCP מתועד?','ספקי חומרי גלם מאושרים ורשומים?','ביצוע בדיקות מתועד לפי תדירות?','תוכנית ה-HACCP עברה עדכון בשנה האחרונה?','קיים נוהל recall/withdrawal?','הפרדה פיזית קיימת בין ייצור חלבי לבשרי?','מוצרים אלרגניים מיוצרים בנפרד?','ניקוי בין אצוות אלרגניות מתועד?','טמפרטורת שמנים לטיגון נמדדת?','שימוש בחומרי הדברה בתחום הייצור אסור?','עיסוקים אסורים אינם מתרחשים בייצור?','עובדים חדשים עוברים הדרכת HACCP?','ביגוד מגן מוחלף בתדירות מספקת?','ציוד ייצור מפורק לניקוי לפי תדירות?','בדיקות ATP מבוצעות לאימות ניקיון ציוד?','חלפים מכניים מנוהלים בנוהל מיוחד?','שמנים תעשייתיים Food Grade מתועדים?','שינויים בפורמולציה מתועדים?','ועדת HACCP מתכנסת אחת לשנה?','מוצרי ניקוי מאושרים לתעשיית מזון?','עצירת קו ייצור בחריגה מ-CCP מתועדת?','גלאי מתכות נבדק ב-Check pieces?','לוח זמנים ייצור נגיש לבעלי התפקידים?','מדדי ביצוע לאיכות מנוטרים חודשית?','נהלי emergency stop מוכרים לעובדים?']},
+  storage:{name:'אחסון וקירור',icon:'❄️',questions:['טמפרטורת חדרי קירור נרשמת לפחות פעמיים ביום?','קיים מדחום כניסה בכל תא קירור?','FIFO מיושם בפועל?','מוצרים גולמיים מאוחסנים בנפרד?','מוצרים פגי תוקף הוסרו?','רצפת חדר הקירור נקייה?','אחסון מינימלי 15 ס"מ מהרצפה?','כיסוי על כל המוצרים בקירור?','מוצרי ניקוי מאוחסנים בנפרד?','חדר האחסון היבש מאוורר ויבש?','חיישני טמפרטורה אוטומטיים מחוברים לאזעקה?','תוכנית בדיקת תקינות דלתות קיימת?','תיעוד חריגות טמפרטורה קיים?','כל מוצר מסומן עם תאריך קבלה?','אזורי אחסון מזוהים בשלטים?','בדיקת מלאי מבוצעת בתדירות מוגדרת?','חדרי קירור נקיים ממזיקים?','קירות ותקרות נקיים מעובש?','יומן ניקוי חדרי קירור עדכני?','חומרי גלם אלרגניים מאוחסנים בנפרד?','ציוד אחסון תקין ונקי?','אין מוצרים על הרצפה?','מוצרים ללא תיוג מוסרים?','חמרים מסוכנים מאוחסנים בנעילה?','תנאי אחסון מיוחדים מנוטרים?','קיים נוהל לאחסון שאריות?','Data logger פועל ומתועד?','גנרטור גיבוי לחדרי קירור?','בדיקת תקינות בלוטות הקפאה?','נוהל כשל בקירור מתועד?','מוצרים הדורשים אחסון מיוחד מזוהים?','אין ניחוחות זרים בקירור?','בדיקות עובש מבוצעות תקופתית?','סגירת דלתות קירור מיושמת?','תאי הקפאה מגיעים ל-18°C-?','מוצרים מופשרים לפי נוהל מוגדר?','האחסון מאפשר זרימת אוויר?','בדיקת תוקף COA מתועדת?','ניקוי קונדנסר מבוצע בתדירות?','אחסון חשמלי בטוח ומרוחק ממזון?','חדר הקירור נעול בשעות ללא שימוש?','גבולות קריטיים לטמפרטורה ידועים?','תיוג מוצרים הנשלחים מלא?','בדיקה יומית של שלמות האריזה?','נוהל לניהול מוצרים שחזרו קיים?','תנאי הובלה לשיגור מתועדים?','בדיקת גזים תחת לחץ מבוצעת?','רשימת ציוד עם תחזוקה מונעת?','עובדי המחסן הוכשרו ב-HACCP?','שחרור מוצרים כולל חתימת אחראי איכות?']},
+  receiving:{name:'קבלת חומרי גלם',icon:'📦',questions:['קיים נוהל מסודר לבדיקת חומרי גלם בעת קבלה?','טמפרטורת מוצרים מקוררים נמדדת ומתועדת?','תאריך תפוגה נבדק לכל משלוח?','הספק מאושר ברשימת ספקים מאושרים?','תעודת משלוח / COA מתקבלת?','בדיקה אורגנולפטית מבוצעת?','אריזות פגומות מסומנות ומסולקות?','אזור קבלת הסחורה נקי?','כלי הרכב של המשלוח נבדק?','מוצרים אלרגניים מופרדים מיידית?','מדבקות תיוג על כל פריט?','בדיקות Lab/Micro מתוזמנות?','כמות שהתקבלה מותאמת להזמנה?','מוצרים שנדחו מסומנים HOLD?','עובד הקבלה הוכשר בנהלי בדיקה?','כלי מדידה זמינים באזור הקבלה?','זמן מרבי בין קבלה לאחסון מוגדר?','בדיקת שלמות ואטימות אריזות ואקום?','תיוג FIFO מיידי עם האחסון?','בדיקת סימני מזיקים בחומרי גלם?','מוצרים קפואים בטמפרטורה של 18°C-?','Traceability code מתועד לכל אצווה?','Allergen declaration מתועדת?','קיים נוהל לטיפול ב-Non-conformance?','ספקים מדורגים לפי Supplier KPI?','בדיקת אחוז לחות לחומרי גלם?','ביקורת ספקים מבוצעת לפי תוכנית?','אישורים Kosher/Halal שמורים בתיק?','בדיקת pH לחומרי גלם?','רשימת חומרי גלם אסורים נגישה?','מסמכי MSDS לחומרים מסוכנים מתקבלים?','מוצרים המכילים GMO מסומנים?','אישור חברת הדברה נדרש מהספק?','בדיקת איכות מוגברת לביצים/בשר/דגים?','כלי קבלה נקיים ותקינים?','בדיקת שלמות חותמות בקרה?','תנאי ההובלה נבדקים ומתועדים?','מוצרים שהוחזרו נבדקים לפי נוהל?','רשימת Blacklist ספקים עדכנית?','פסולת קבלה מפונה בנפרד?','שינויי ספק מיידעים מנהל האיכות?','מוצר ללא COA נעצר עד לקבלתה?','רישוי ספקים שמור ועדכני?','גב הטריילר נבדק לפני פריקה?','תאורה באזור הקבלה מספקת?','מוצרים חד-פעמיים זמינים לעובדים?','תיעוד קבלה מועבר למנהל יומית?','בדיקת Residue מבוצעת לפי תוכנית?','Product Specification לכל חומר גלם?','עובדי קבלה יודעים לפעיל נוהל Hold?']},
+  packaging:{name:'אריזה ותיוג',icon:'🏷️',questions:['חומרי האריזה מאושרים Food Grade?','מידע תזונתי מדויק על גבי התווית?','רשימת מרכיבים לפי סדר יורד במשקל?','כל האלרגנים מסומנים בהדגשה?','תאריך ייצור ותפוגה ברורים?','תנאי אחסון מצוינים על האריזה?','משקל/נפח נטו מדויק?','שם ופרטי היצרן מצוינים?','מספר אצווה לעקיבה על המוצר?','אריזות נקיות ממזיקים לפני שימוש?','בדיקת שלמות האיטום בתחילת משמרת?','חומרי אריזה מאוחסנים נכון?','קיים נוהל לאריזות פגומות?','תווית עמדה בבדיקת Legal Review?','הצהרה על מצב המוצר מצוינת?','קוד QR / Barcode תקין?','כמות ואריזה נבדקים לפני אחסון?','מוצרים ייצואיים עומדים בדרישות תיוג?','סמלי אלרגן מאומתים?','כיתוב Kosher/Halal מבוסס על אישורים?','מכונת אריזה נפסקת בחריגת משקל?','בדיקת אריזות ואקום דגימתית?','חומרי אריזה חדשים עוברים אישור גרסה?','בדיקת Weight control מתועדת?','מגמת שינוי משקל מנוטרת?','הדפסת תאריכי תפוגה נבדקת?','אריזות פוליאתילן עומדות בתקן?','בדיקת Migration tests מתועדת?','כיתוב Drained weight מצוין?','הנחיות הכנה מדויקות ובשפות הנדרשות?','קוד מדינת ייצור מצוין?','מספר אישור וטרינרי לייצוא מצוין?','E-numbers עומדים בדרישות?','בדיקת Headspace לאריזות MAP?','איכות הדפסה נבדקת בתחילת ריצה?','ניהול גרסאות תווית מתועד?','ספקי אריזה ב-Approved Supplier List?','אחסון חומרי אריזה יבש ומסומן?','בדיקת Functional barriers לאריזות רב-שכבתיות?','כיתוב אחסון לאחר פתיחה מצוין?','מוצרים אלרגניים מאוחסנים בנפרד בפס?','ניקוי קווי אריזה בין אלרגנים מתועד?','מנהל האיכות מאשר תצוגה חדשה של תווית?','גרסאות תווית מיושנות מושמדות?','ERP מעודכן עם נתוני תווית?','Artwork approval checklist מתועד?','בדיקת שלמות אריזה drop test?','תוויות מאוחסנות באזור נעול?','Printer Qualification מבוצע?','כרטיס ייצור כולל קוד גרסה תווית?']},
+  cleaning:{name:'ניקוי וחיטוי',icon:'🧹',questions:['תוכנית ניקוי וחיטוי כתובה ומוצגת?','חומרי ניקוי מאושרים לתעשיית מזון?','ריכוז תמיסת חיטוי נמדד לפני שימוש?','ציוד ניקוי צבעוני ונפרד לאזורים?','ניקוי ציוד מבוצע לפי SOP?','יומן ניקוי מלא וחתום?','בדיקות ATP מבוצעות לפי תדירות?','ניקוי בין אצוות אלרגניות מתועד?','חיטוי רצפות וקירות מבוצע?','חומרי ניקוי מאוחסנים בנפרד ממזון?','ריכוז חומרי חיטוי בטווח המאושר?','ניקוי אמבטיות רגל מבוצע יומית?','ניקוי מסננים ותעלות ניקוז?','ספיגת Spillage מיידית?','ניקוי ציוד פגום אינו נדחה?','הנחיות שימוש בחומרי ניקוי מודפסות?','הכשרת עובדי ניקוי מתועדת?','בדיקות מיקרוביולוגיות של משטחים?','ניקוי ציוד ב-Change-over?','שאריות מזון מפונות לפני ניקוי?','ניקוי מכשירי מדידה מבוצע?','ציוד שטיפה עונה על הדרישות?','תמיסת שטיפה סופית נבדקת?','CIP מתועד ובדרישות?','ניקוי בוכנות ומחברים לפי SOP?','בדיקת ריח לאחר ניקוי?','בדיקת Allergen swab לאחר changeover?','ניקוי קווי אוויר דחוס?','ניקוי בין משמרות כולל חיטוי?','החלפת תמיסות חיטוי בתדירות?','ניקוי מחסנים גובל עם ייצור?','בדיקות מיקרו TPC/Listeria?','ניקוי לאחר תחזוקה מורחבת?','ניקוי ציוד ניטור (סנסורים)?','Deep Clean שבועי/חודשי מתוכנן?','כמות מים לשטיפה מספקת?','ניקוי גגות ודלתות חוץ?','תוצאות Swab מועברות לאיכות?','בדיקות כלור חופשי במים?','ניקוי עמדות עבודה בסיום משמרת?','חומרי ניקוי עוברים אישור כניסה?','ניקוי אמבטיות הרגל לפי נוהל?','גיל תמיסות ניקוי מנוהל?','ניקוי בתוך ציוד מתועד בנפרד?','ניקוי מיכלי אחסון ובורות ניקוז?','הפרדה בין ציוד ניקוי לפני ואחרי?','בדיקת Residual detergent tests?','עובדי ניקוי מצוידים ב-PPE?','SDS לכל חומר ניקוי נגיש?','בדיקת מיכלי ניקוז תקופתית?']},
+  personnel:{name:'היגיינה אישית',icon:'👤',questions:['עובדים עוטים כיסוי ראש מלא?','שטיפת ידיים מבוצעת לפני כניסה לייצור?','ציפורניים קצרות וללא לק?','כפפות מוחלפות בתדירות הנדרשת?','תכשיטים אסורים ומקוימים בפועל?','ביגוד עבודה נקי ומוחלף?','אכילה ושתייה אסורים ומקוימים?','פצעים פתוחים עם פלסטר כחול?','עובדים חולים מוסרים מייצור?','הכשרת HACCP מתועדת לכל עובד?','בדיקות בריאות תקופתיות מתועדות?','אמבטיות ידיים עם סבון זמינות?','שלטי שטיפת ידיים בכניסות?','שטיפת ידיים לאחר שירותים?','ביגוד מגן על שיער כולל זקן?','כיסי ביגוד ריקים?','פיארסינג מוסר לפני כניסה?','ביגוד מגן לא יוצא לאזורי מנוחה?','מבקרים עוטים ביגוד מגן?','בדיקת היגיינה אישית בתדירות?','עובדים מכירים נוהל דיווח מחלה?','עובדים יודעים מה לעשות עם חפץ זר?','תדריך כניסה לעובדים חדשים?','עובדים שוטפים ידיים לאחר מגע בפסולת?','חדרי שירותים נקיים ומאובזרים?','מנגנון אחריות לניטור היגיינה ידוע?','קיים נוהל לבדיקת היגיינה אישית?','עובדי תחזוקה עוטים ביגוד מגן?','עובדים עם פצעים עוטים כפפות עמידות?','עובדים מכירים פעולות אסורות?','עובדים עוטים נעלי בטיחות?','קבלן חיצוני מוכשר לפני כניסה?','Refresher training שנתי מבוצע?','רישום הכשרות שמור ועדכני?','תעודות הכשרה בתוקף לכל עובד?','עובדי חדר אוכל שומרים היגיינה?','ידיים שטופות לאחר מגע בפנים?','עובדים מזהים סימני זיהום?','בדיקת נוכחות PPE בתחילת משמרת?','קיים נוהל לדיווח על חריגות היגיינה?','אחראי ניקוי ידיים ממונה לכל תחנה?','תדירות החלפת כפפות מוגדרת?','מחלות זיהומיות מנוהלות בנוהל?','עובדים יודעים ללבוש כפפות נכון?','זרנוקי מים להשקיה זמינים?','הדרכת Foreign Body Awareness?','הכשרה על אלרגנים לכל עובד?','ניקוי ביגוד מגן נפרד מביגוד אישי?','שינויים בנהלי היגיינה מועברים?','ביקורת היגיינה פתאומית מנהל האיכות?']},
+  pest:{name:'מניעת מזיקים',icon:'🛡️',questions:['חוזה עם חברת הדברה מורשית ובתוקף?','תדירות ביקורי הדברה מקוימת?','דוח ביקור אחרון נמצא במפעל?','מפה עדכנית של נקודות פיתיון?','מלכודות פנימיות נבדקות שבועית?','מלכודות חשמליות פועלות?','פגרי מזיקים מוסרים מיידית?','חורים ופתחים אטומים?','רשתות על חלונות תקינות?','ריווח תחת דלתות ≤ 6 מ"מ?','פסולת אורגנית מפונה בתדירות?','אין צמחייה גובלת עם המבנה?','תאורה חיצונית אינה מושכת חרקים?','בדיקת סימני מזיקים בתחילת משמרת?','מוצרים מאוחסנים ≥ 15 ס"מ מרצפה?','אין מזון פתוח שנשאר בלילה?','ניקיון פריפריה מיושם?','פיתיון ביוצידי מאושר לפנים מפעל?','חיסון ציפורים בנקודות חיצוניות?','תוצאות מוניטורינג מנותחות?','פעולות תיקון לאחר זיהוי מזיק מתועדות?','תאורת LED מפחיתה משיכת חרקים?','אמצעי מניעת יונים על גגות?','Trend Analysis לנתוני מלכודות?','Bait stations מוחלפות בתדירות?','סגירת מכולות פסולת חיצוניות?','תיק Pest Control מסודר ועדכני?','ספקי ציוד הדברה מאושרים?','רישיון חברת הדברה בתוקף?','הדרכת עובדים לזיהוי מזיקים?','Pest activity log מנוהל מרכזית?','בדיקת אזורי חשד שבועית?','מניעת כניסת ציפורים לייצור?','בדיקת עצים ושיחים סמוכים?','חיישני תנועה ומצלמות למוניטורינג?','fumigation תחת פיקוח ובתיאום?','הדברת שכנים מתואמת?','נוהל Pest Sighting Report קיים?','ריסוס חיצוני בתאריכים קבועים?','אביזרי הדברה מסומנים ומוגנים?','מנהל האיכות מאשר תוכנית שנתית?','בדיקת תחתית ציוד גדול?','מניעת גישה למקורות מים פתוחים?','שקיות קמח/סוכר מכוסות?','חיסוני עכברים בנקודות המוגדרות?','דלתות הטעינה נסגרות מיד?','בדיקת שולי ציוד לסימני מזיקים?','ניהול פסולת חיצונית עם כיסוי?','בדיקת צינורות ניקוז לסימני כניסה?','סיכום שנתי של נתוני הדברה?']},
+  water:{name:'מים ושפכים',icon:'💧',questions:['בדיקת כלור חופשי מבוצעת יומית?','תוצאות ניתוח מיקרוביולוגי שמורות?','מקור המים מאושר ובתוקף?','ניתוח כימי שנתי מבוצע?','ברזי עזר נסגרים ואינם נוגעים ברצפה?','לחץ מים מספק לניקוי?','מים חמים זמינים לניקוי ציוד?','מים לייצור עומדים בתקן שתייה?','צינורות שתייה ושפכים מופרדים?','ניטור pH ו-turbidity מבוצע?','מסנן לפני כניסת מים לייצור?','מי קיטור/עיצוב מנוהלים?','בדיקת Legionella מבוצעת?','מערכת הצינורות נקייה מאבנית?','מים ל-CIP עומדים בתקן?','שטיפת צינורות שלא שומשו?','בדיקות מים לאחר תיקון?','מד מים כחלק מ-CCP?','מי הקיטור מאושרים למגע מזון?','בדיקת איכות מי קרח?','ניקוז רצפות פנוי?','מונע ריחות ביוב דרך Trap?','נוהל לטיפול בתקלת מים?','בדיקת Nitrate בבארות?','מפה של מערכת המים עדכנית?','בדיקות Bacteriological רבעוני?','חיישן water hammer מותקן?','גיבוי מקור מים לחירום?','עמדות שטיפה עם מים חמים וקרים?','מדחומי מים מכוילים?','בדיקת מים לאחר עצירה?','מים ממוחזרים עוברים טיהור?','חוזה עם רשות המים?','בדיקות כלור בשעות שיא?','בדיקת Iron וManganese בבארות?','ניקוז ייצור תקין?','ריח ביוב מדווח מיידית?','גלאי נזילות מים בחדרי ציוד?','תוצאות בדיקות בתיק מרכזי?','בדיקת TDS של מי ייצור?','מסנני UV נבדקים בתדירות?','chlorination על ידי גורם מוסמך?','ניטור COD/BOD של שפכים?','אישורים לשחרור שפכים בתוקף?','נוהל דגימת מים בחשד זיהום?','עובדים מודרכים על איכות מים?','pressure test לאחר תיקון?','תחזוקה מונעת לצינורות?','מנהל האיכות מאשר חריגות?','תיק מים שמור לביקורות?']}
+};
+
+// ── Init ──
+document.getElementById('date-display').textContent = new Date().toLocaleDateString('he-IL',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+if (sheetsUrl) document.getElementById('sheets-url').value = sheetsUrl;
+
+// Load saved auditor name
+const savedName = localStorage.getItem('haccp_auditor') || '';
+document.getElementById('auditor-name').value = savedName;
+document.getElementById('auditor-name').addEventListener('change', e => {
+  localStorage.setItem('haccp_auditor', e.target.value);
+});
+
+// ── Connect to Sheets ──
+async function connectSheets() {
+  const url = document.getElementById('sheets-url').value.trim();
+  if (!url) { showToast('הכנס URL של Apps Script', 'error'); return; }
+  sheetsUrl = url;
+  localStorage.setItem('haccp_sheets_url', url);
+  showToast('מתחבר...');
+  try {
+    const res = await fetch(sheetsUrl + '?action=getDepts');
+    const data = await res.json();
+    if (data && typeof data === 'object') {
+      departmentsFromSheets = data;
+      setConnected(true);
+      renderZones();
+      showToast('מחובר לשיט בהצלחה!', 'success');
+    }
+  } catch(e) {
+    showToast('שגיאה בחיבור — בדוק URL', 'error');
+    setConnected(false);
+  }
+}
+
+function setConnected(v) {
+  isConnected = v;
+  const banner = document.getElementById('setup-banner');
+  const badge = document.getElementById('conn-badge');
+  if (v) {
+    banner.classList.add('connected');
+    badge.className = 'online-badge';
+    badge.textContent = '✓ מחובר לשיט';
+    document.getElementById('btn-save').disabled = false;
+  } else {
+    banner.classList.remove('connected');
+    badge.className = 'offline-badge';
+    badge.textContent = '⚠ לא מחובר לשיט';
+    document.getElementById('btn-save').disabled = true;
+  }
+}
+
+// ── Render Zones ──
+function renderZones() {
+  const grid = document.getElementById('zones-grid');
+  let zones = [];
+  if (isConnected && departmentsFromSheets) {
+    zones = Object.entries(departmentsFromSheets).map(([id, name]) => ({
+      id, name, icon: OFFLINE_QUESTIONS[id]?.icon || '📋'
+    }));
+  } else {
+    zones = Object.entries(OFFLINE_QUESTIONS).map(([id, v]) => ({id, name: v.name, icon: v.icon}));
+  }
+  grid.innerHTML = zones.map(z => {
+    const sc = lastScores[z.id];
+    let scoreClass = '';
+    let scoreAttr = '';
+    if (sc !== undefined) {
+      scoreAttr = `data-score="${sc}%" `;
+      scoreClass = 'has-score ' + (sc >= 80 ? '' : sc >= 60 ? 'score-mid' : 'score-low');
+    }
+    return `<div class="zone-card ${scoreClass}" ${scoreAttr}onclick="selectZone('${z.id}','${z.name}')" id="zc-${z.id}">
+      <div class="zone-icon">${z.icon}</div>
+      <div class="zone-name">${z.name}</div>
+      <div class="zone-meta">50 שאלות | 10 יבחרו אקראית</div>
+    </div>`;
+  }).join('');
+}
+
+renderZones();
+
+// ── Select Zone ──
+async function selectZone(id, name) {
+  currentZone = {id, name};
+  answers = {};
+  document.querySelectorAll('.zone-card').forEach(c => c.classList.remove('active'));
+  const el = document.getElementById('zc-' + id);
+  if (el) el.classList.add('active');
+
+  document.getElementById('cl-title').textContent = name + ' — ביקורת HACCP';
+  document.getElementById('cl-sub').textContent = 'טוען שאלות...';
+  document.getElementById('checklist-wrap').classList.add('visible');
+  document.getElementById('questions-list').innerHTML = '<div class="loading"><div class="spinner"></div> טוען שאלות...</div>';
+  updateScore();
+
+  if (isConnected && sheetsUrl) {
+    await loadFromSheets(id, name);
+  } else {
+    loadOffline(id, name);
+  }
+}
+
+async function loadFromSheets(id, name) {
+  try {
+    const res = await fetch(`${sheetsUrl}?action=getQuestions&dept=${id}`);
+    const data = await res.json();
+    if (!data || !data.length) { loadOffline(id, name); return; }
+    const pool = data.map(q => q.text || q.question_text || q[2] || '');
+    currentQuestions = shuffle(pool).slice(0, 10);
+    document.getElementById('cl-sub').textContent = `מהשיט | ${new Date().toLocaleDateString('he-IL')} | 10 מתוך ${pool.length} שאלות`;
+    renderQuestions();
+  } catch(e) {
+    loadOffline(id, name);
+  }
+}
+
+function loadOffline(id, name) {
+  const pool = (OFFLINE_QUESTIONS[id]?.questions || []).slice();
+  currentQuestions = shuffle(pool).slice(0, 10);
+  document.getElementById('cl-sub').textContent = `מאגר מקומי | ${new Date().toLocaleDateString('he-IL')} | 10 מתוך ${pool.length} שאלות`;
+  renderQuestions();
+}
+
+function refreshQuestions() {
+  if (currentZone) selectZone(currentZone.id, currentZone.name);
+}
+
+// ── Render Questions ──
+function renderQuestions() {
+  const list = document.getElementById('questions-list');
+  list.innerHTML = currentQuestions.map((q, i) => {
+    const ans = answers[i];
+    const rowClass = ans ? 'q-row answered-' + ans : 'q-row';
+    return `<div class="${rowClass}" id="qrow-${i}">
+      <div class="q-idx">${i+1}</div>
+      <div class="q-body">
+        <div class="q-text">${q}</div>
+        <div class="q-btns">
+          <button class="q-opt ${ans==='pass'?'sel-pass':''}" onclick="setAns(${i},'pass')">✓ תקין</button>
+          <button class="q-opt ${ans==='fail'?'sel-fail':''}" onclick="setAns(${i},'fail')">✗ לא תקין</button>
+          <button class="q-opt ${ans==='na'?'sel-na':''}" onclick="setAns(${i},'na')">— לא רלוונטי</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setAns(i, val) {
+  answers[i] = answers[i] === val ? null : val;
+  renderQuestions();
+  updateScore();
+}
+
+// ── Score ──
+function updateScore() {
+  const vals = Object.values(answers).filter(Boolean);
+  const pass = vals.filter(v => v === 'pass').length;
+  const fail = vals.filter(v => v === 'fail').length;
+  const na = vals.filter(v => v === 'na').length;
+  const applicable = pass + fail;
+  const pct = applicable > 0 ? Math.round((pass / applicable) * 100) : 0;
+  document.getElementById('s-pass').textContent = pass;
+  document.getElementById('s-fail').textContent = fail;
+  document.getElementById('s-na').textContent = na;
+  document.getElementById('prog-pct').textContent = pct + '%';
+  document.getElementById('prog-fill').style.width = pct + '%';
+  const fill = document.getElementById('prog-fill');
+  fill.style.background = pct >= 80 ? 'var(--green)' : pct >= 60 ? '#BA7517' : '#A32D2D';
+  if (currentZone && applicable > 0) lastScores[currentZone.id] = pct;
+}
+
+// ── Save to Sheets ──
+async function saveToSheets() {
+  if (!isConnected || !currentZone) return;
+  const auditor = document.getElementById('auditor-name').value || 'לא צוין';
+  const pass = Object.values(answers).filter(v=>v==='pass').length;
+  const fail = Object.values(answers).filter(v=>v==='fail').length;
+  const applicable = pass + fail;
+  const score = applicable > 0 ? Math.round((pass / applicable) * 100) : 0;
+
+  const payload = {
+    auditor,
+    deptId: currentZone.id,
+    deptName: currentZone.name,
+    score,
+    answers: currentQuestions.map((q, i) => ({
+      question: q,
+      answer: answers[i] === 'pass' ? 'תקין' : answers[i] === 'fail' ? 'לא תקין' : answers[i] === 'na' ? 'לא רלוונטי' : 'לא נבדק'
+    }))
+  };
+
+  showToast('שומר לשיט...');
+  try {
+    await fetch(sheetsUrl, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      headers: {'Content-Type': 'application/json'}
+    });
+    showToast('נשמר בהצלחה ב-Google Sheets!', 'success');
+    renderZones(); // update score badges
+  } catch(e) {
+    showToast('שגיאה בשמירה', 'error');
+  }
+}
+
+// ── Export CSV ──
+function exportCSV() {
+  if (!currentZone) return;
+  const auditor = document.getElementById('auditor-name').value || 'לא צוין';
+  const date = new Date().toLocaleDateString('he-IL');
+  const statusMap = {pass:'תקין', fail:'לא תקין', na:'לא רלוונטי'};
+  const rows = [['#','מחלקה','בודק','תאריך','שאלה','תוצאה']];
+  currentQuestions.forEach((q, i) => {
+    rows.push([i+1, currentZone.name, auditor, date, q, statusMap[answers[i]] || 'לא נבדק']);
+  });
+  const csv = '\uFEFF' + rows.map(r => r.map(c => '"' + String(c).replace(/"/g,'""') + '"').join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8'}));
+  a.download = `HACCP_${currentZone.name}_${date.replace(/\//g,'-')}.csv`;
+  a.click();
+}
+
+// ── Helpers ──
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  clearTimeout(t._to);
+  t._to = setTimeout(() => { t.classList.remove('show'); }, 3000);
+}
+</script>
+</body>
+</html>
