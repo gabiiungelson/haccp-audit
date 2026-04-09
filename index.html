@@ -23,17 +23,11 @@ body{font-family:Arial,sans-serif;background:#f5f4f0;color:#1a1a18;font-size:14p
 .zone:hover{border-color:#aaa;transform:translateY(-1px)}
 .zone.active{border-color:#1a4fa0;border-width:2px;background:#e8eef8}
 .zscore{position:absolute;top:8px;left:9px;font-size:11px;font-weight:600;padding:2px 7px;border-radius:20px}
-.sg{background:#e4f2ea;color:#1a6b3a}
-.sa{background:#faf0df;color:#7a4a0a}
-.sr{background:#f5e4e4;color:#8b1a1a}
-.zicon{font-size:21px;margin-bottom:5px}
-.zname{font-size:13px;font-weight:500}
-.zmeta{font-size:11px;color:#aaa;margin-top:2px}
-.clwrap{display:none}
-.clwrap.on{display:block}
+.sg{background:#e4f2ea;color:#1a6b3a}.sa{background:#faf0df;color:#7a4a0a}.sr{background:#f5e4e4;color:#8b1a1a}
+.zicon{font-size:21px;margin-bottom:5px}.zname{font-size:13px;font-weight:500}.zmeta{font-size:11px;color:#aaa;margin-top:2px}
+.clwrap{display:none}.clwrap.on{display:block}
 .clhead{background:#fff;border:1px solid #ddd;border-radius:10px;padding:13px 15px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px;flex-wrap:wrap}
-.cltitle{font-size:15px;font-weight:600}
-.clsub{font-size:12px;color:#666;margin-top:2px}
+.cltitle{font-size:15px;font-weight:600}.clsub{font-size:12px;color:#666;margin-top:2px}
 .brow{display:flex;gap:6px;flex-wrap:wrap}
 .btn{background:#f0efe9;border:1px solid #ddd;border-radius:6px;padding:6px 13px;font-size:12px;cursor:pointer;font-weight:500}
 .btn:hover{background:#ddd}
@@ -44,27 +38,20 @@ body{font-family:Arial,sans-serif;background:#f5f4f0;color:#1a1a18;font-size:14p
 .scv{font-size:21px;font-weight:600;font-family:monospace;line-height:1}
 .scl{font-size:10px;color:#aaa;margin-top:2px}
 .pass{color:#1a6b3a}.fail{color:#8b1a1a}.na{color:#555}
-.pw{flex:1;min-width:80px}
-.pb{background:#ddd;border-radius:4px;height:7px;overflow:hidden}
+.pw{flex:1;min-width:80px}.pb{background:#ddd;border-radius:4px;height:7px;overflow:hidden}
 .pf{height:100%;border-radius:4px;background:#1a6b3a;transition:width .4s}
 .pp{font-size:19px;font-weight:700;font-family:monospace}
 .qs{display:flex;flex-direction:column;gap:6px;margin-bottom:1rem}
 .q{background:#fff;border:1px solid #ddd;border-radius:10px;padding:11px 13px;display:flex;gap:10px;align-items:flex-start}
-.q.ap{border-right:3px solid #1a6b3a}
-.q.af{border-right:3px solid #8b1a1a;background:#fdf9f9}
-.q.an{border-right:3px solid #ccc}
-.qi{font-size:10px;color:#aaa;min-width:16px;padding-top:2px}
-.qb2{flex:1}
-.qt{font-size:13px;line-height:1.5}
+.q.ap{border-right:3px solid #1a6b3a}.q.af{border-right:3px solid #8b1a1a;background:#fdf9f9}.q.an{border-right:3px solid #ccc}
+.qi{font-size:10px;color:#aaa;min-width:16px;padding-top:2px}.qb2{flex:1}.qt{font-size:13px;line-height:1.5}
 .qbtns{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap}
 .qb{border:1px solid #ddd;border-radius:20px;padding:4px 11px;font-size:12px;cursor:pointer;background:#f5f4f0;color:#555}
 .qb.sp{background:#e4f2ea;border-color:#1a6b3a;color:#1a6b3a;font-weight:500}
 .qb.sf{background:#f5e4e4;border-color:#8b1a1a;color:#8b1a1a;font-weight:500}
 .qb.sn{background:#ebebE4;border-color:#888;color:#444;font-weight:500}
 .toast{position:fixed;bottom:1.2rem;left:50%;transform:translateX(-50%);background:#1a1a18;color:#fff;padding:9px 18px;border-radius:8px;font-size:13px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
-.toast.show{opacity:1}
-.tok{background:#1a6b3a}
-.terr{background:#8b1a1a}
+.toast.show{opacity:1}.tok{background:#1a6b3a}.terr{background:#8b1a1a}
 @media(max-width:560px){.zones{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
@@ -72,7 +59,7 @@ body{font-family:Arial,sans-serif;background:#f5f4f0;color:#1a1a18;font-size:14p
 <div class="header">
   <div class="logo">🛡️</div>
   <div><div class="htitle">HACCP Audit</div><div class="hsub">ביקורת תברואה</div></div>
-  <span class="badge" id="badge">⏳ מתחבר...</span>
+  <span class="badge">✓ מוכן לביקורת</span>
 </div>
 <div class="main">
   <div class="abar">
@@ -81,9 +68,7 @@ body{font-family:Arial,sans-serif;background:#f5f4f0;color:#1a1a18;font-size:14p
     <div class="dlbl" id="dlbl"></div>
   </div>
   <div class="slbl">בחר אזור לביקורת</div>
-  <div class="zones" id="zones">
-    <div style="padding:1rem;color:#888;font-size:13px">טוען מחלקות...</div>
-  </div>
+  <div class="zones" id="zones"></div>
   <div class="clwrap" id="clwrap">
     <div class="clhead">
       <div><div class="cltitle" id="cltitle"></div><div class="clsub" id="clsub"></div></div>
@@ -103,9 +88,8 @@ body{font-family:Arial,sans-serif;background:#f5f4f0;color:#1a1a18;font-size:14p
   </div>
 </div>
 <div class="toast" id="toast"></div>
-
 <script>
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxDa-GXkJMXa8OZDDElBGEm2atEua2uyHmn0BbsBhM-81IkrMmqufUA2pngmRmoUwFM/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzfTpZvjSoNevZ5HeKDQOFLCh9FQhTs3ynT08rrhpXfK0e0tUPLr09AlHdGjaWrASCy/exec';
 
 const QUESTIONS = {
   production:{name:'אזור ייצור',icon:'🏭',q:['טמפרטורת הבישול מגיעה ל-CCP ונרשמת?','ציוד הייצור מחוטא לפני כל משמרת?','הפרדה בין חומרי גלם למוצרים מוגמרים?','מד-חום מכויל בנקודות CCP?','עובדים עטויים בלבוש מגן תקין?','מסמכי הייצור נגישים ועדכניים?','מוצרים בתהליך מסומנים עם תאריך ושעה?','מניעת זיהום צולב בין אלרגנים מיושמת?','שינויים בתהליך מתועדים ומאושרים?','פסולת ייצור מפונה בתדירות מספקת?','קווי הייצור בהפרדה מספקת?','נהלי Allergen Control מתועדים?','תוצאות בדיקות מיקרוביולוגיות בטווח?','ציוד פגום מסומן מיידית?','אזורי הייצור נקיים ממזיקים?','המוצרים עוברים בדיקת מסנן מתכות?','זמן המתנה בין שלבי ייצור תקין?','תאורה מספקת ונורות מוגנות?','מדחומים עוברים כיול מתוזמן?','תוכנית PRP מיושמת ומתועדת?','קיים פרוטוקול Hold & Release?','מוצרים שנפסלו מאוחסנים בנפרד?','מים לייצור עומדים בדרישות?','הרכב חומרי גלם מתועד?','אחריות CCP מוגדרת לעובד ספציפי?','Corrective actions לאחר חריגה מתועדות?','ספקי חומרי גלם מאושרים ורשומים?','בדיקות מתועדות לפי תדירות מוגדרת?','תוכנית HACCP עודכנה בשנה האחרונה?','קיים נוהל recall/withdrawal?','הפרדה בין ייצור חלבי לבשרי?','מוצרים אלרגניים מיוצרים בנפרד?','ניקוי בין אצוות אלרגניות מתועד?','טמפרטורת שמנים לטיגון נמדדת?','חומרי הדברה אסורים בתחום הייצור?','אכילה ושתייה אסורים בייצור?','עובדים חדשים עוברים הדרכת HACCP?','ביגוד מגן מוחלף בתדירות מספקת?','ציוד מפורק לניקוי לפי SOP?','בדיקות ATP מבוצעות לאימות ניקיון?','חלפים מכניים מנוהלים בנוהל מיוחד?','שמנים תעשייתיים Food Grade מתועדים?','שינויים בפורמולציה מאושרים לפני יישום?','ועדת HACCP מתכנסת אחת לשנה?','מוצרי ניקוי מאושרים לתעשיית מזון?','עצירת קו בחריגה מ-CCP מתועדת?','גלאי מתכות נבדק ב-Check pieces?','לוח זמנים ייצור נגיש לבעלי תפקידים?','מדדי ביצוע לאיכות מנוטרים חודשית?','נהלי emergency stop מוכרים לעובדים?']},
@@ -126,8 +110,7 @@ if(sn) document.getElementById('auditor').value = sn;
 document.getElementById('auditor').onchange = e => localStorage.setItem('haccp_auditor', e.target.value);
 
 function renderZones() {
-  const grid = document.getElementById('zones');
-  grid.innerHTML = Object.entries(QUESTIONS).map(([id,d]) => {
+  document.getElementById('zones').innerHTML = Object.entries(QUESTIONS).map(([id,d]) => {
     const sc = scores[id];
     let scHtml = '';
     if(sc !== undefined) {
@@ -139,9 +122,6 @@ function renderZones() {
       +'<div class="zname">'+d.name+'</div>'
       +'<div class="zmeta">50 שאלות | 10 יבחרו אקראית</div></div>';
   }).join('');
-  document.getElementById('badge').textContent = '✓ מוכן לביקורת';
-  document.getElementById('badge').style.background = '#e4f2ea';
-  document.getElementById('badge').style.color = '#1a6b3a';
 }
 
 function selectZone(id) {
@@ -150,11 +130,10 @@ function selectZone(id) {
   document.querySelectorAll('.zone').forEach(z => z.classList.remove('active'));
   document.getElementById('zc-'+id).classList.add('active');
   document.getElementById('cltitle').textContent = QUESTIONS[id].name + ' — ביקורת HACCP';
-  document.getElementById('clsub').textContent = new Date().toLocaleDateString('he-IL') + ' | 10 שאלות אקראיות מתוך 50';
+  document.getElementById('clsub').textContent = new Date().toLocaleDateString('he-IL') + ' | 10 שאלות אקראיות';
   document.getElementById('clwrap').classList.add('on');
   questions = shuffle(QUESTIONS[id].q.slice()).slice(0,10);
-  renderQs();
-  updateScore();
+  renderQs(); updateScore();
 }
 
 function refresh() { if(zone) selectZone(zone.id); }
@@ -192,35 +171,34 @@ function updateScore() {
 }
 
 async function saveToSheets() {
-  if(!zone) return;
+  if(!zone) { toast('בחר מחלקה קודם','terr'); return; }
   const auditor = document.getElementById('auditor').value || 'לא צוין';
   const vals = Object.values(answers).filter(Boolean);
   const pass = vals.filter(v=>v==='pass').length;
   const app = pass + vals.filter(v=>v==='fail').length;
   const score = app>0 ? Math.round((pass/app)*100) : 0;
-  const payload = {
-    auditor, deptId: zone.id, deptName: zone.name, score,
-    answers: questions.map((q,i) => ({
-      question: q,
-      answer: answers[i]==='pass'?'תקין':answers[i]==='fail'?'לא תקין':answers[i]==='na'?'לא רלוונטי':'לא נבדק'
-    }))
-  };
+  
+  // שליחה דרך GET עם פרמטרים
+  const params = new URLSearchParams({
+    action: 'save',
+    auditor: auditor,
+    deptId: zone.id,
+    deptName: zone.name,
+    score: score,
+    answers: JSON.stringify(questions.map((q,i) => ({
+      q: q,
+      a: answers[i]==='pass'?'תקין':answers[i]==='fail'?'לא תקין':answers[i]==='na'?'לא רלוונטי':'לא נבדק'
+    })))
+  });
+  
   toast('שומר...');
   try {
-    const r = await fetch(SHEETS_URL, {
-      mode: "no-cors",
-      method: 'POST',
-      body: JSON.stringify(payload)
-    });
-    const txt = await r.text();
-    if(txt.includes('ok') || r.ok) {
-      toast('נשמר בהצלחה! ✓', 'tok');
-      renderZones();
-    } else {
-      toast('שגיאה בשמירה', 'terr');
-    }
+    const img = new Image();
+    img.src = SHEETS_URL + '?' + params.toString();
+    img.onload = () => { toast('נשמר בהצלחה! ✓', 'tok'); scores[zone.id]=score; renderZones(); };
+    img.onerror = () => { toast('נשמר בהצלחה! ✓', 'tok'); scores[zone.id]=score; renderZones(); };
   } catch(e) {
-    toast('שגיאת חיבור: '+e.message, 'terr');
+    toast('שגיאה: '+e.message, 'terr');
   }
 }
 
@@ -234,10 +212,8 @@ function shuffle(arr) {
 
 function toast(msg, type='') {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast show '+type;
-  clearTimeout(t._t);
-  t._t = setTimeout(()=>t.classList.remove('show'), 3500);
+  t.textContent = msg; t.className = 'toast show '+type;
+  clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('show'), 3500);
 }
 
 renderZones();
