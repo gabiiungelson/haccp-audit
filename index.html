@@ -208,6 +208,7 @@ async function saveToSheets() {
   toast('שומר...');
   try {
     const r = await fetch(SHEETS_URL, {
+      mode: "no-cors",
       method: 'POST',
       body: JSON.stringify(payload)
     });
