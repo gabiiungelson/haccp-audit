@@ -89,7 +89,7 @@ body{font-family:Arial,sans-serif;background:#f5f4f0;color:#1a1a18;font-size:14p
 </div>
 <div class="toast" id="toast"></div>
 <script>
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbz0u1LmUN49f9dsXD-W3wjctGB1SHQk9QQuxh4KpdhYJYnMDhgHEMjNNNWJn9PBpH8p/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzUtHc60Konl8uVXlkv79CLSi1QmLDdeWOHiwVkOJxJRkWJ-WZgc4M42pzda9DM5sM0/exec';
 
 const QUESTIONS = {
   production:{name:'אזור ייצור',icon:'🏭',q:['טמפרטורת הבישול מגיעה ל-CCP ונרשמת?','ציוד הייצור מחוטא לפני כל משמרת?','הפרדה בין חומרי גלם למוצרים מוגמרים?','מד-חום מכויל בנקודות CCP?','עובדים עטויים בלבוש מגן תקין?','מסמכי הייצור נגישים ועדכניים?','מוצרים בתהליך מסומנים עם תאריך ושעה?','מניעת זיהום צולב בין אלרגנים מיושמת?','שינויים בתהליך מתועדים ומאושרים?','פסולת ייצור מפונה בתדירות מספקת?','קווי הייצור בהפרדה מספקת?','נהלי Allergen Control מתועדים?','תוצאות בדיקות מיקרוביולוגיות בטווח?','ציוד פגום מסומן מיידית?','אזורי הייצור נקיים ממזיקים?','המוצרים עוברים בדיקת מסנן מתכות?','זמן המתנה בין שלבי ייצור תקין?','תאורה מספקת ונורות מוגנות?','מדחומים עוברים כיול מתוזמן?','תוכנית PRP מיושמת ומתועדת?','קיים פרוטוקול Hold & Release?','מוצרים שנפסלו מאוחסנים בנפרד?','מים לייצור עומדים בדרישות?','הרכב חומרי גלם מתועד?','אחריות CCP מוגדרת לעובד ספציפי?','Corrective actions לאחר חריגה מתועדות?','ספקי חומרי גלם מאושרים ורשומים?','בדיקות מתועדות לפי תדירות מוגדרת?','תוכנית HACCP עודכנה בשנה האחרונה?','קיים נוהל recall/withdrawal?','הפרדה בין ייצור חלבי לבשרי?','מוצרים אלרגניים מיוצרים בנפרד?','ניקוי בין אצוות אלרגניות מתועד?','טמפרטורת שמנים לטיגון נמדדת?','חומרי הדברה אסורים בתחום הייצור?','אכילה ושתייה אסורים בייצור?','עובדים חדשים עוברים הדרכת HACCP?','ביגוד מגן מוחלף בתדירות מספקת?','ציוד מפורק לניקוי לפי SOP?','בדיקות ATP מבוצעות לאימות ניקיון?','חלפים מכניים מנוהלים בנוהל מיוחד?','שמנים תעשייתיים Food Grade מתועדים?','שינויים בפורמולציה מאושרים לפני יישום?','ועדת HACCP מתכנסת אחת לשנה?','מוצרי ניקוי מאושרים לתעשיית מזון?','עצירת קו בחריגה מ-CCP מתועדת?','גלאי מתכות נבדק ב-Check pieces?','לוח זמנים ייצור נגיש לבעלי תפקידים?','מדדי ביצוע לאיכות מנוטרים חודשית?','נהלי emergency stop מוכרים לעובדים?']},
@@ -124,15 +124,31 @@ function renderZones() {
   }).join('');
 }
 
-function selectZone(id) {
+async function selectZone(id) {
   zone = {id, name: QUESTIONS[id].name};
   answers = {};
   document.querySelectorAll('.zone').forEach(z => z.classList.remove('active'));
   document.getElementById('zc-'+id).classList.add('active');
   document.getElementById('cltitle').textContent = QUESTIONS[id].name + ' — ביקורת HACCP';
-  document.getElementById('clsub').textContent = new Date().toLocaleDateString('he-IL') + ' | 10 שאלות אקראיות';
+  document.getElementById('clsub').textContent = 'טוען שאלות...';
   document.getElementById('clwrap').classList.add('on');
-  questions = shuffle(QUESTIONS[id].q.slice()).slice(0,10);
+  document.getElementById('qs').innerHTML = '<div style="padding:1rem;color:#888;text-align:center">טוען...</div>';
+  
+  // נסה לטעון מהשיט
+  try {
+    const r = await fetch(SHEETS_URL + '?action=getQuestions&dept=' + id);
+    const data = await r.json();
+    if (data && data.length > 0) {
+      questions = shuffle(data).slice(0,10);
+      document.getElementById('clsub').textContent = 'מהשיט | ' + new Date().toLocaleDateString('he-IL') + ' | 10 מתוך ' + data.length + ' שאלות';
+    } else {
+      throw new Error('no data');
+    }
+  } catch(e) {
+    // חזרה למאגר מקומי
+    questions = shuffle(QUESTIONS[id].q.slice()).slice(0,10);
+    document.getElementById('clsub').textContent = 'מאגר מקומי | ' + new Date().toLocaleDateString('he-IL') + ' | 10 שאלות';
+  }
   renderQs(); updateScore();
 }
 
